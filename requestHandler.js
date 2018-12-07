@@ -1,3 +1,5 @@
+const Router = require('./requestRouter');
+
 /*
 * Prmary file for the handling requests
 *
@@ -42,12 +44,40 @@ function requestHandler(req, res){
     // Tells us when the stream has ended
     req.on('end', function(){
         buffer += decoder.end();
-        // Add logic you want to carry out after request has been successfully streamed
-        // Send the response
-        res.end('Hello World\n');
 
-        // Log the request path
-        console.log(`Request received with these payload`, buffer);
+        // Add logic you want to carry out after request has been successfully streamed
+
+        // Choose handler to handle the request that is incoming
+        const chosenHandler = typeof(Router[trimmedPath]) !== 'undefined' ? Router[trimmedPath] : Router['notFound'];
+
+        // Construct the data to send to the chosen handler
+        const data = {
+            trimmedPath,
+            queryStringObject,
+            method,
+            headers,
+            body: buffer
+        };
+
+        // Route request by calling the chosen handler and passing the data to it
+        chosenHandler(data, function(statusCode, payload){
+            // Defaults for Status Code
+            statusCode = typeof(statusCode) === 'number' ? statusCode : 200;
+
+            // Defaults for the payload sent back
+            payload = typeof(payload) === 'object' ? payload : {};
+
+            // Convert Payload to a String
+            const payloadString = JSON.stringify(payload);
+
+            // Return the response
+            res.setHeader('Content-Type', 'application/json');
+            res.writeHead(statusCode);
+            res.end(payloadString);
+
+            // Log the request path
+            console.log(`Returning this response`, statusCode, payloadString);
+        });
     })
 }
 
