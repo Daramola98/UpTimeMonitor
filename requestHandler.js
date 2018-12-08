@@ -1,5 +1,3 @@
-const Router = require('./requestRouter');
-
 /*
 * Prmary file for the handling requests
 *
@@ -8,6 +6,7 @@ const Router = require('./requestRouter');
 // Dependencies
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
+const Router = require('./requestRouter');
 
 /*
 * Function for handling client requests and sending back a response
